@@ -1,52 +1,44 @@
 # Weather Cities App
 
-Приложение для отображения погоды в городах на Next.js и OpenWeatherMap API.
+Weather app built with Next.js and OpenWeatherMap API.
 
-## Технологии
+## Tech Stack
 
 - Next.js 14
 - React 18
 - TypeScript
 - Redux Toolkit
 - SCSS Modules
-- Jest + Testing Library
+- Jest
 
-## Установка
+## Setup
 
-1. Установите зависимости:
+1. Install dependencies:
 ```bash
 npm install
 ```
 
-2. Создайте файл `.env.local` в корне проекта:
+2. Create `.env.local` file:
 ```env
 NEXT_PUBLIC_OPENWEATHER_API_KEY=your_api_key_here
+NEXT_PUBLIC_UNSPLASH_ACCESS_KEY=your_unsplash_key_here
 ```
 
-   Получить API ключ можно на [OpenWeatherMap](https://openweathermap.org/api)
+Get API keys:
+- [OpenWeatherMap](https://openweathermap.org/api)
+- [Unsplash](https://unsplash.com/developers)
 
-3. Запустите проект:
+3. Run dev server:
 ```bash
 npm run dev
 ```
 
-Откройте [http://localhost:3000](http://localhost:3000) в браузере.
+Open [http://localhost:3000](http://localhost:3000)
 
-## Тестирование
+## Scripts
 
-Запустить тесты:
 ```bash
-npm test
-```
-
-## Сборка
-
-Создать production сборку:
-```bash
-npm run build
-```
-
-Запустить production сервер:
-```bash
-npm start
+npm test      # Run tests
+npm run build # Build for production
+npm start     # Start production server
 ```

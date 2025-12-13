@@ -80,11 +80,14 @@
 
 .cityName {
   font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.95);
+  color: rgba(255, 255, 255, 1);
   text-transform: uppercase;
   letter-spacing: 1px;
-  font-weight: 700;
-  text-shadow: var(--shadow-sm);
+  font-weight: 800;
+  text-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.5),
+    0 1px 3px rgba(0, 0, 0, 0.8),
+    0 0 2px rgba(0, 0, 0, 0.9);
   margin: 0 0 8px 0;
   position: relative;
   z-index: 2;
@@ -150,10 +153,13 @@
 
 .tempValue {
   font-size: 3rem;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.95);
+  font-weight: 800;
+  color: rgba(255, 255, 255, 1);
   line-height: 1;
-  text-shadow: var(--shadow-sm);
+  text-shadow: 
+    0 3px 12px rgba(0, 0, 0, 0.6),
+    0 2px 6px rgba(0, 0, 0, 0.8),
+    0 0 4px rgba(0, 0, 0, 0.9);
   position: relative;
   z-index: 2;
 
@@ -164,8 +170,11 @@
 
 .feelsLike {
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.7);
-  text-shadow: var(--shadow-sm);
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 600;
+  text-shadow: 
+    0 2px 6px rgba(0, 0, 0, 0.5),
+    0 1px 3px rgba(0, 0, 0, 0.7);
   position: relative;
   z-index: 2;
 }

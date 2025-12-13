@@ -8,7 +8,7 @@ type CityDetailProps = {
   forecastData?: ForecastData
   isLoading: boolean
   isError: boolean
-  error?: Error | null
+  error?: any
 }
 
 export default function CityDetail({
@@ -49,9 +49,9 @@ export default function CityDetail({
   }
 
   const hourlyForecast = forecastData.list.slice(0, 8)
-  const temperatures = hourlyForecast.map((item) => Math.round(item.main.temp))
-  const minTemp = Math.min(...temperatures)
-  const maxTemp = Math.max(...temperatures)
+  const temps = hourlyForecast.map((item) => Math.round(item.main.temp))
+  const minTemp = Math.min(...temps)
+  const maxTemp = Math.max(...temps)
   const tempRange = maxTemp - minTemp || 1
 
   return (
@@ -117,8 +117,8 @@ export default function CityDetail({
             const visibility = item.visibility ? (item.visibility / 1000).toFixed(1) : null
             const cloudiness = item.clouds?.all || 0
 
-            const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
-            const windDir = directions[Math.round(windDirection / 45) % 8] || 'N'
+            const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
+            const windDir = dirs[Math.round(windDirection / 45) % 8] || 'N'
 
             return (
               <div key={item.dt} className={styles.forecastItem}>

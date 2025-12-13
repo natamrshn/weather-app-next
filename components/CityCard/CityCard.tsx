@@ -39,33 +39,32 @@ export default function CityCard({ city, onRemove }: CityCardProps) {
   useEffect(() => {
     if (!weatherData) return
     
-    const fetchCityImage = async () => {
+    const loadImage = async () => {
       const cityName = weatherData.name
-      const unsplashKey = process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY || ''
+      const key = process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY || ''
       
-      if (unsplashKey) {
-        try {
-          const response = await fetch(
-            `https://api.unsplash.com/photos/random?query=${encodeURIComponent(cityName + ' city')}&orientation=landscape&client_id=${unsplashKey}`
-          )
-          if (response.ok) {
-            const data = await response.json()
-            setCityImageUrl(data.urls.regular)
-          } else {
-            const seed = cityName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
-            setCityImageUrl(`https://picsum.photos/seed/${seed}/800/600`)
-          }
-        } catch {
-          const seed = cityName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
-          setCityImageUrl(`https://picsum.photos/seed/${seed}/800/600`)
+      const getSeed = () => cityName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+      
+      if (!key) {
+        setCityImageUrl(`https://picsum.photos/seed/${getSeed()}/800/600`)
+        return
+      }
+      
+      try {
+        const url = `https://api.unsplash.com/photos/random?query=${encodeURIComponent(cityName + ' city')}&orientation=landscape&client_id=${key}`
+        const res = await fetch(url)
+        if (res.ok) {
+          const data = await res.json()
+          setCityImageUrl(data.urls.regular)
+        } else {
+          setCityImageUrl(`https://picsum.photos/seed/${getSeed()}/800/600`)
         }
-      } else {
-        const seed = cityName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
-        setCityImageUrl(`https://picsum.photos/seed/${seed}/800/600`)
+      } catch {
+        setCityImageUrl(`https://picsum.photos/seed/${getSeed()}/800/600`)
       }
     }
     
-    fetchCityImage()
+    loadImage()
   }, [weatherData])
 
   const handleRefresh = async () => {
@@ -130,7 +129,7 @@ export default function CityCard({ city, onRemove }: CityCardProps) {
   const temp = Math.round(weatherData.main.temp)
   const feelsLike = Math.round(weatherData.main.feels_like)
 
-  const imageUrl = cityImageUrl || ''
+  const imageUrl = cityImageUrl || 'https://picsum.photos/800/600'
 
   return (
     <div 

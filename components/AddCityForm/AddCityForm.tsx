@@ -28,8 +28,8 @@ export default function AddCityForm() {
       const weatherData = await getCurrentWeather(cityName)
       const cityId = `${weatherData.name.toLowerCase().replace(/\s+/g, '-')}-${weatherData.id}`
       
-      const cityExists = cities.some((city) => city.id === cityId || city.name.toLowerCase() === weatherData.name.toLowerCase())
-      if (cityExists) {
+      const exists = cities.find((city) => city.id === cityId || city.name.toLowerCase() === weatherData.name.toLowerCase())
+      if (exists) {
         setError('This city is already added')
         setIsLoading(false)
         return
