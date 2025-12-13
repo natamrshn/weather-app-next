@@ -21,19 +21,31 @@ export default function CityCard({ city, onRemove }: CityCardProps) {
   const [cityImageUrl, setCityImageUrl] = useState<string | null>(null)
 
   useEffect(() => {
+    let cancelled = false
+    
     const fetchWeather = async () => {
       setIsLoading(true)
       setError(null)
       try {
         const data = await getCurrentWeather(city.name)
-        setWeatherData(data)
+        if (!cancelled) {
+          setWeatherData(data)
+        }
       } catch (err: any) {
-        setError(err?.message || 'Error loading weather')
+        if (!cancelled) {
+          setError(err?.message || 'Error loading weather')
+        }
       } finally {
-        setIsLoading(false)
+        if (!cancelled) {
+          setIsLoading(false)
+        }
       }
     }
     fetchWeather()
+    
+    return () => {
+      cancelled = true
+    }
   }, [city.name])
 
   useEffect(() => {
@@ -43,10 +55,13 @@ export default function CityCard({ city, onRemove }: CityCardProps) {
       const cityName = weatherData.name
       const key = process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY || ''
       
-      const getSeed = () => cityName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+      let seed = 0
+      for (let i = 0; i < cityName.length; i++) {
+        seed += cityName.charCodeAt(i)
+      }
       
       if (!key) {
-        setCityImageUrl(`https://picsum.photos/seed/${getSeed()}/800/600`)
+        setCityImageUrl(`https://picsum.photos/seed/${seed}/800/600`)
         return
       }
       
@@ -57,10 +72,10 @@ export default function CityCard({ city, onRemove }: CityCardProps) {
           const data = await res.json()
           setCityImageUrl(data.urls.regular)
         } else {
-          setCityImageUrl(`https://picsum.photos/seed/${getSeed()}/800/600`)
+          setCityImageUrl(`https://picsum.photos/seed/${seed}/800/600`)
         }
       } catch {
-        setCityImageUrl(`https://picsum.photos/seed/${getSeed()}/800/600`)
+        setCityImageUrl(`https://picsum.photos/seed/${seed}/800/600`)
       }
     }
     
@@ -84,7 +99,8 @@ export default function CityCard({ city, onRemove }: CityCardProps) {
     router.push(`/${city.id}`)
   }
 
-  const handleRemove = () => {
+  const handleRemove = (e: React.MouseEvent) => {
+    e.stopPropagation()
     onRemove(city.id)
   }
 
@@ -113,7 +129,7 @@ export default function CityCard({ city, onRemove }: CityCardProps) {
             <span className={styles.refreshIcon}>↻</span>
             <span>Try again</span>
           </button>
-          <button onClick={handleRemove} className={styles.removeButton}>
+          <button onClick={(e) => handleRemove(e)} className={styles.removeButton}>
             Remove
           </button>
         </div>
@@ -144,7 +160,7 @@ export default function CityCard({ city, onRemove }: CityCardProps) {
       <div className={styles.header}>
         <h2 className={styles.cityName}>{weatherData.name}</h2>
         <button
-          onClick={handleRemove}
+          onClick={(e) => handleRemove(e)}
           className={styles.removeButton}
         >
           ×

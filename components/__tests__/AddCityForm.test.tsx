@@ -7,9 +7,7 @@ import citiesReducer from '@/store/slices/citiesSlice'
 import * as weatherApi from '@/store/api/weatherApi'
 
 jest.mock('next/navigation', () => ({
-  useRouter: () => ({
-    push: jest.fn(),
-  }),
+  useRouter: () => ({ push: jest.fn() }),
 }))
 
 jest.mock('@/store/api/weatherApi', () => ({
@@ -17,12 +15,10 @@ jest.mock('@/store/api/weatherApi', () => ({
 }))
 
 const store = configureStore({
-  reducer: {
-    cities: citiesReducer,
-  },
+  reducer: { cities: citiesReducer },
 })
 
-const mockWeatherData = {
+const weather = {
   weather: [{ main: 'Clear', description: 'clear', icon: '01d' }],
   main: { temp: 20, feels_like: 19, pressure: 1013, humidity: 65 },
   wind: { speed: 3.5, deg: 180 },
@@ -47,7 +43,7 @@ describe('AddCityForm', () => {
     expect(screen.getByText('Add city')).toBeInTheDocument()
   })
 
-  it('shows error for empty city', async () => {
+  it('shows error for empty input', async () => {
     const user = userEvent.setup()
 
     render(
@@ -57,12 +53,14 @@ describe('AddCityForm', () => {
     )
 
     await user.click(screen.getByText('Add city'))
-    await waitFor(() => expect(screen.getByText('Enter city name')).toBeInTheDocument())
+    await waitFor(() => {
+      expect(screen.getByText('Enter city name')).toBeInTheDocument()
+    })
   })
 
   it('adds city', async () => {
     const user = userEvent.setup()
-    ;(weatherApi.getCurrentWeather as jest.Mock).mockResolvedValue(mockWeatherData)
+    ;(weatherApi.getCurrentWeather as jest.Mock).mockResolvedValue(weather)
 
     render(
       <Provider store={store}>
@@ -74,11 +72,13 @@ describe('AddCityForm', () => {
     await user.type(input, 'Kyiv')
     await user.click(screen.getByText('Add city'))
 
-    await waitFor(() => expect(input).toHaveValue(''))
+    await waitFor(() => {
+      expect(input).toHaveValue('')
+    })
     expect(store.getState().cities.cities.length).toBe(1)
   })
 
-  it('shows error on fail', async () => {
+  it('shows error', async () => {
     const user = userEvent.setup()
     ;(weatherApi.getCurrentWeather as jest.Mock).mockRejectedValue(new Error('City not found'))
 
@@ -91,7 +91,9 @@ describe('AddCityForm', () => {
     await user.type(screen.getByPlaceholderText('Enter city name'), 'InvalidCity')
     await user.click(screen.getByText('Add city'))
 
-    await waitFor(() => expect(screen.getByText(/City not found/i)).toBeInTheDocument())
+    await waitFor(() => {
+      expect(screen.getByText(/City not found/i)).toBeInTheDocument()
+    })
   })
 })
 

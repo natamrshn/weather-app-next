@@ -5,9 +5,7 @@ import CityList from '../CityList/CityList'
 import citiesReducer from '@/store/slices/citiesSlice'
 
 const store = configureStore({
-  reducer: {
-    cities: citiesReducer,
-  },
+  reducer: { cities: citiesReducer },
 })
 
 describe('CityList', () => {

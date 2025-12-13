@@ -6,9 +6,7 @@ import citiesReducer from '@/store/slices/citiesSlice'
 import * as weatherApi from '@/store/api/weatherApi'
 
 jest.mock('next/navigation', () => ({
-  useRouter: () => ({
-    push: jest.fn(),
-  }),
+  useRouter: () => ({ push: jest.fn() }),
 }))
 
 jest.mock('@/store/api/weatherApi', () => ({
@@ -16,17 +14,11 @@ jest.mock('@/store/api/weatherApi', () => ({
 }))
 
 const store = configureStore({
-  reducer: {
-    cities: citiesReducer,
-  },
+  reducer: { cities: citiesReducer },
 })
 
-const mockCity = {
-  id: 'kyiv-123',
-  name: 'Kyiv',
-}
-
-const mockWeatherData = {
+const city = { id: 'kyiv-123', name: 'Kyiv' }
+const weather = {
   weather: [{ main: 'Clear', description: 'clear', icon: '01d' }],
   main: { temp: 20, feels_like: 19, pressure: 1013, humidity: 65 },
   wind: { speed: 3.5, deg: 180 },
@@ -44,23 +36,25 @@ describe('CityCard', () => {
 
     render(
       <Provider store={store}>
-        <CityCard city={mockCity} onRemove={jest.fn()} />
+        <CityCard city={city} onRemove={jest.fn()} />
       </Provider>
     )
 
     expect(screen.getByText('Loading...')).toBeInTheDocument()
   })
 
-  it('shows weather data', async () => {
-    ;(weatherApi.getCurrentWeather as jest.Mock).mockResolvedValue(mockWeatherData)
+  it('shows weather', async () => {
+    ;(weatherApi.getCurrentWeather as jest.Mock).mockResolvedValue(weather)
 
     render(
       <Provider store={store}>
-        <CityCard city={mockCity} onRemove={jest.fn()} />
+        <CityCard city={city} onRemove={jest.fn()} />
       </Provider>
     )
 
-    await waitFor(() => expect(screen.getByText('Kyiv')).toBeInTheDocument())
+    await waitFor(() => {
+      expect(screen.getByText('Kyiv')).toBeInTheDocument()
+    })
   })
 
   it('shows error', async () => {
@@ -68,27 +62,30 @@ describe('CityCard', () => {
 
     render(
       <Provider store={store}>
-        <CityCard city={mockCity} onRemove={jest.fn()} />
+        <CityCard city={city} onRemove={jest.fn()} />
       </Provider>
     )
 
-    await waitFor(() => expect(screen.getByText(/Error loading weather/i)).toBeInTheDocument())
+    await waitFor(() => {
+      expect(screen.getByText(/Error loading weather/i)).toBeInTheDocument()
+    })
   })
 
   it('calls onRemove', async () => {
     const onRemove = jest.fn()
-    ;(weatherApi.getCurrentWeather as jest.Mock).mockResolvedValue(mockWeatherData)
+    ;(weatherApi.getCurrentWeather as jest.Mock).mockResolvedValue(weather)
 
     render(
       <Provider store={store}>
-        <CityCard city={mockCity} onRemove={onRemove} />
+        <CityCard city={city} onRemove={onRemove} />
       </Provider>
     )
 
-    await waitFor(() => expect(screen.getByText('Kyiv')).toBeInTheDocument())
+    await waitFor(() => {
+      expect(screen.getByText('Kyiv')).toBeInTheDocument()
+    })
 
-    const removeButtons = screen.getAllByText('×')
-    removeButtons[0].click()
+    screen.getAllByText('×')[0].click()
     expect(onRemove).toHaveBeenCalledWith('kyiv-123')
   })
 })
