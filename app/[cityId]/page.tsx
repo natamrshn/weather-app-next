@@ -8,42 +8,46 @@ import CityDetail from '@/components/CityDetail/CityDetail'
 import styles from './page.module.scss'
 
 export default function CityDetailPage() {
-  const params = useParams()
   const router = useRouter()
+  const params = useParams()
   const cityId = params.cityId as string
   const cities = useAppSelector((state) => state.cities.cities)
   const city = cities.find((c) => c.id === cityId)
 
   const [forecastData, setForecastData] = useState<ForecastData | undefined>(undefined)
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<any>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!city?.name) return
 
-    const fetchForecast = async () => {
+    const loadForecast = async () => {
       setIsLoading(true)
+      setError(null)
+      
       try {
         const data = await getForecast(city.name)
         setForecastData(data)
-        setError(null)
       } catch (err: any) {
-        setError(err)
+        setError(err?.message || 'Error loading forecast')
       } finally {
         setIsLoading(false)
       }
     }
-    fetchForecast()
+    
+    loadForecast()
   }, [city?.name])
 
   if (!city) {
     return (
-      <div className={styles.errorContainer}>
-        <p>City not found</p>
-        <button onClick={() => router.push('/')} className={styles.backButton}>
-          Return to home
-        </button>
-      </div>
+      <main className={styles.main}>
+        <div className={styles.errorContainer} role="alert">
+          <p>City not found</p>
+          <button onClick={() => router.push('/')} className={styles.backButton}>
+            Return to home
+          </button>
+        </div>
+      </main>
     )
   }
 
@@ -58,7 +62,7 @@ export default function CityDetailPage() {
           forecastData={forecastData}
           isLoading={isLoading}
           isError={error !== null}
-          error={error}
+          error={error ? { message: error } : undefined}
         />
       </div>
     </main>

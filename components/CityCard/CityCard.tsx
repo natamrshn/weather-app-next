@@ -18,71 +18,31 @@ export default function CityCard({ city, onRemove }: CityCardProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const [cityImageUrl, setCityImageUrl] = useState<string | null>(null)
+
+  const loadWeather = async () => {
+    setIsLoading(true)
+    setError(null)
+    
+    try {
+      const data = await getCurrentWeather(city.name)
+      setWeatherData(data)
+    } catch (err: any) {
+      setError(err?.message || 'Error loading weather')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   useEffect(() => {
-    let cancelled = false
-    
-    const fetchWeather = async () => {
-      setIsLoading(true)
-      setError(null)
-      try {
-        const data = await getCurrentWeather(city.name)
-        if (!cancelled) {
-          setWeatherData(data)
-        }
-      } catch (err: any) {
-        if (!cancelled) {
-          setError(err?.message || 'Error loading weather')
-        }
-      } finally {
-        if (!cancelled) {
-          setIsLoading(false)
-        }
-      }
-    }
-    fetchWeather()
-    
-    return () => {
-      cancelled = true
-    }
+    loadWeather()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [city.name])
 
-  useEffect(() => {
-    if (!weatherData) return
-    
-    const loadImage = async () => {
-      const cityName = weatherData.name
-      const key = process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY || ''
-      
-      let seed = 0
-      for (let i = 0; i < cityName.length; i++) {
-        seed += cityName.charCodeAt(i)
-      }
-      
-      if (!key) {
-        setCityImageUrl(`https://picsum.photos/seed/${seed}/800/600`)
-        return
-      }
-      
-      try {
-        const url = `https://api.unsplash.com/photos/random?query=${encodeURIComponent(cityName + ' city')}&orientation=landscape&client_id=${key}`
-        const res = await fetch(url)
-        if (res.ok) {
-          const data = await res.json()
-          setCityImageUrl(data.urls.regular)
-        } else {
-          setCityImageUrl(`https://picsum.photos/seed/${seed}/800/600`)
-        }
-      } catch {
-        setCityImageUrl(`https://picsum.photos/seed/${seed}/800/600`)
-      }
+  const handleRefresh = async (e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation()
     }
     
-    loadImage()
-  }, [weatherData])
-
-  const handleRefresh = async () => {
     setIsRefreshing(true)
     try {
       const data = await getCurrentWeather(city.name)
@@ -104,36 +64,44 @@ export default function CityCard({ city, onRemove }: CityCardProps) {
     onRemove(city.id)
   }
 
+  const getCityImageUrl = () => {
+    let seed = 0
+    for (let i = 0; i < city.name.length; i++) {
+      seed += city.name.charCodeAt(i)
+    }
+    return `https://picsum.photos/seed/${seed}/800/600`
+  }
+
   if (isLoading) {
     return (
-      <div className={styles.card}>
-        <div className={styles.loading}>Loading...</div>
-      </div>
+      <article className={styles.card}>
+        <div className={styles.loading} role="status" aria-live="polite">Loading...</div>
+      </article>
     )
   }
 
   if (error && !weatherData) {
     return (
-      <div className={styles.card}>
-        <div className={styles.error}>
+      <article className={styles.card}>
+        <div className={styles.error} role="alert">
           <h3>{city.name}</h3>
           <p>Error loading weather</p>
           <p className={styles.errorMessage}>
             {error === 'City not found' ? 'City not found' : 'Please try again later'}
           </p>
           <button 
-            onClick={handleRefresh} 
+            onClick={(e) => handleRefresh(e)} 
             className={`${styles.refreshButton} ${isRefreshing ? styles.refreshing : ''}`}
             disabled={isRefreshing}
           >
             <span className={styles.refreshIcon}>↻</span>
             <span>Try again</span>
           </button>
-          <button onClick={(e) => handleRemove(e)} className={styles.removeButton}>
+          <button onClick={(e) => handleRemove(e)} className={styles.removeButton} aria-label="Remove city">
             Remove
           </button>
         </div>
-      </div>
+      </article>
     )
   }
 
@@ -145,28 +113,27 @@ export default function CityCard({ city, onRemove }: CityCardProps) {
   const temp = Math.round(weatherData.main.temp)
   const feelsLike = Math.round(weatherData.main.feels_like)
 
-  const imageUrl = cityImageUrl || 'https://picsum.photos/800/600'
-
   return (
-    <div 
+    <article 
       className={styles.card} 
       onClick={handleCardClick}
       style={{
-        backgroundImage: `url(${imageUrl})`,
+        backgroundImage: `url(${getCityImageUrl()})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
     >
-      <div className={styles.header}>
+      <header className={styles.header}>
         <h2 className={styles.cityName}>{weatherData.name}</h2>
         <button
           onClick={(e) => handleRemove(e)}
           className={styles.removeButton}
+          aria-label="Remove city"
         >
           ×
         </button>
-      </div>
-      <div className={styles.weatherInfo}>
+      </header>
+      <section className={styles.weatherInfo}>
         <div className={styles.temperature}>
           <span className={styles.tempValue}>{temp}°</span>
           <span className={styles.feelsLike}>Feels like {feelsLike}°</span>
@@ -200,16 +167,17 @@ export default function CityCard({ city, onRemove }: CityCardProps) {
             <span className={styles.infoValue}>{weatherData.main.pressure} hPa</span>
           </div>
         </div>
-      </div>
+      </section>
       <button 
-        onClick={handleRefresh} 
+        onClick={(e) => handleRefresh(e)} 
         className={`${styles.refreshButton} ${isRefreshing ? styles.refreshing : ''}`}
         disabled={isRefreshing}
+        aria-label="Refresh weather data"
       >
         <span className={styles.refreshIcon}>↻</span>
         <span>Refresh now</span>
       </button>
-    </div>
+    </article>
   )
 }
 

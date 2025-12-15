@@ -28,8 +28,12 @@ export default function Home() {
   return (
     <main className={styles.main}>
       <div className={styles.container}>
-        <h1 className={styles.title}>Weather in Cities</h1>
-        <AddCityForm />
+        <header>
+          <h1 className={styles.title}>Weather in Cities</h1>
+        </header>
+        <section>
+          <AddCityForm />
+        </section>
         <CityList cities={cities} />
       </div>
     </main>

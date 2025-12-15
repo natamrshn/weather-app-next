@@ -20,31 +20,31 @@ export default function CityDetail({
 }: CityDetailProps) {
   if (isLoading) {
     return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Loading forecast...</div>
-      </div>
+      <article className={styles.container}>
+        <div className={styles.loading} role="status" aria-live="polite">Loading forecast...</div>
+      </article>
     )
   }
 
   if (isError) {
     return (
-      <div className={styles.container}>
-        <div className={styles.error}>
+      <article className={styles.container}>
+        <div className={styles.error} role="alert">
           <h2>{cityName}</h2>
           <p>Error loading forecast</p>
           <p className={styles.errorMessage}>
             {error?.message === 'City not found' ? 'City not found' : 'Please try again later'}
           </p>
         </div>
-      </div>
+      </article>
     )
   }
 
   if (!forecastData || !forecastData.list) {
     return (
-      <div className={styles.container}>
-        <div className={styles.error}>No forecast data available</div>
-      </div>
+      <article className={styles.container}>
+        <div className={styles.error} role="alert">No forecast data available</div>
+      </article>
     )
   }
 
@@ -55,13 +55,15 @@ export default function CityDetail({
   const tempRange = maxTemp - minTemp || 1
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>{forecastData.city.name}</h1>
-      <div className={styles.currentInfo}>
-        <p className={styles.country}>{forecastData.city.country}</p>
-      </div>
+    <article className={styles.container}>
+      <header>
+        <h1 className={styles.title}>{forecastData.city.name}</h1>
+        <div className={styles.currentInfo}>
+          <p className={styles.country}>{forecastData.city.country}</p>
+        </div>
+      </header>
 
-      <div className={styles.forecastSection}>
+      <section className={styles.forecastSection}>
         <h2 className={styles.sectionTitle}>Hourly Forecast (24 hours)</h2>
         <div className={styles.temperatureChart}>
           <div className={styles.chartContainer}>
@@ -232,8 +234,8 @@ export default function CityDetail({
             )
           })}
         </div>
-      </div>
-    </div>
+      </section>
+    </article>
   )
 }
 

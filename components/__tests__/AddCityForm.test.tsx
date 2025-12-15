@@ -53,9 +53,7 @@ describe('AddCityForm', () => {
     )
 
     await user.click(screen.getByText('Add city'))
-    await waitFor(() => {
-      expect(screen.getByText('Enter city name')).toBeInTheDocument()
-    })
+    expect(await screen.findByText('Enter city name')).toBeInTheDocument()
   })
 
   it('adds city', async () => {
@@ -72,9 +70,7 @@ describe('AddCityForm', () => {
     await user.type(input, 'Kyiv')
     await user.click(screen.getByText('Add city'))
 
-    await waitFor(() => {
-      expect(input).toHaveValue('')
-    })
+    await screen.findByDisplayValue('')
     expect(store.getState().cities.cities.length).toBe(1)
   })
 
@@ -91,9 +87,7 @@ describe('AddCityForm', () => {
     await user.type(screen.getByPlaceholderText('Enter city name'), 'InvalidCity')
     await user.click(screen.getByText('Add city'))
 
-    await waitFor(() => {
-      expect(screen.getByText(/City not found/i)).toBeInTheDocument()
-    })
+    expect(await screen.findByText(/City not found/i)).toBeInTheDocument()
   })
 })
 

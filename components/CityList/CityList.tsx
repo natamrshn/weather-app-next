@@ -18,18 +18,18 @@ export default function CityList({ cities }: CityListProps) {
 
   if (cities.length === 0) {
     return (
-      <div className={styles.empty}>
+      <section className={styles.empty}>
         <p>Add a city to see the weather</p>
-      </div>
+      </section>
     )
   }
 
   return (
-    <div className={styles.list}>
+    <section className={styles.list}>
       {cities.map((city) => (
         <CityCard key={city.id} city={city} onRemove={handleRemove} />
       ))}
-    </div>
+    </section>
   )
 }
 

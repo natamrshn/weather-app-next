@@ -94,7 +94,10 @@ export async function getCurrentWeather(cityName: string): Promise<WeatherData> 
   const response = await fetch(url)
 
   if (!response.ok) {
-    throw new Error(response.status === 404 ? 'City not found' : 'Failed to fetch weather')
+    if (response.status === 404) {
+      throw new Error('City not found')
+    }
+    throw new Error('Failed to fetch weather')
   }
 
   return response.json()
@@ -105,7 +108,10 @@ export async function getForecast(cityName: string): Promise<ForecastData> {
   const response = await fetch(url)
 
   if (!response.ok) {
-    throw new Error(response.status === 404 ? 'City not found' : 'Failed to fetch forecast')
+    if (response.status === 404) {
+      throw new Error('City not found')
+    }
+    throw new Error('Failed to fetch forecast')
   }
 
   return response.json()

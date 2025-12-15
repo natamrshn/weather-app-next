@@ -52,9 +52,7 @@ describe('CityCard', () => {
       </Provider>
     )
 
-    await waitFor(() => {
-      expect(screen.getByText('Kyiv')).toBeInTheDocument()
-    })
+    expect(await screen.findByText('Kyiv')).toBeInTheDocument()
   })
 
   it('shows error', async () => {
@@ -66,9 +64,7 @@ describe('CityCard', () => {
       </Provider>
     )
 
-    await waitFor(() => {
-      expect(screen.getByText(/Error loading weather/i)).toBeInTheDocument()
-    })
+    expect(await screen.findByText(/Error loading weather/i)).toBeInTheDocument()
   })
 
   it('calls onRemove', async () => {
@@ -81,9 +77,7 @@ describe('CityCard', () => {
       </Provider>
     )
 
-    await waitFor(() => {
-      expect(screen.getByText('Kyiv')).toBeInTheDocument()
-    })
+    expect(await screen.findByText('Kyiv')).toBeInTheDocument()
 
     screen.getAllByText('×')[0].click()
     expect(onRemove).toHaveBeenCalledWith('kyiv-123')
