@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { getCurrentWeather, WeatherData } from '@/store/api/weatherApi'
@@ -18,11 +18,25 @@ export default function CityCard({ city, onRemove }: CityCardProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [cityImageUrl, setCityImageUrl] = useState<string | null>(null)
 
-  const loadWeather = async () => {
+  const getSeedFromCity = useCallback(() => {
+    let seed = 0
+    for (let i = 0; i < city.name.length; i++) {
+      seed += city.name.charCodeAt(i)
+    }
+    return seed
+  }, [city.name])
+
+  const getCityImageUrl = useCallback(() => {
+    const seed = getSeedFromCity()
+    const fallback = `https://picsum.photos/seed/${seed}/800/600`
+    return cityImageUrl || fallback
+  }, [cityImageUrl, getSeedFromCity])
+
+  const loadWeather = useCallback(async () => {
     setIsLoading(true)
     setError(null)
-    
     try {
       const data = await getCurrentWeather(city.name)
       setWeatherData(data)
@@ -31,12 +45,45 @@ export default function CityCard({ city, onRemove }: CityCardProps) {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [city.name])
 
   useEffect(() => {
     loadWeather()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [city.name])
+  }, [loadWeather])
+
+  useEffect(() => {
+    if (!weatherData) return
+
+    const seed = getSeedFromCity()
+    const fallback = `https://picsum.photos/seed/${seed}/800/600`
+    const key = process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY
+
+    if (!key) {
+      setCityImageUrl(fallback)
+      return
+    }
+
+    const loadImage = async () => {
+      try {
+        const url = `https://api.unsplash.com/photos/random?query=${encodeURIComponent(
+          `${weatherData.name} city`
+        )}&orientation=landscape&client_id=${key}`
+
+        const res = await fetch(url)
+        if (!res.ok) {
+          setCityImageUrl(fallback)
+          return
+        }
+
+        const data = await res.json()
+        setCityImageUrl(data?.urls?.regular || fallback)
+      } catch {
+        setCityImageUrl(fallback)
+      }
+    }
+
+    loadImage()
+  }, [weatherData, getSeedFromCity])
 
   const handleRefresh = async (e?: React.MouseEvent) => {
     if (e) {
@@ -63,15 +110,6 @@ export default function CityCard({ city, onRemove }: CityCardProps) {
     e.stopPropagation()
     onRemove(city.id)
   }
-
-  const getCityImageUrl = () => {
-    let seed = 0
-    for (let i = 0; i < city.name.length; i++) {
-      seed += city.name.charCodeAt(i)
-    }
-    return `https://picsum.photos/seed/${seed}/800/600`
-  }
-
   if (isLoading) {
     return (
       <article className={styles.card}>
